@@ -1,11 +1,31 @@
-// Store complete checkout order in localStorage before UPI redirect
-function storeOrderInLocalStorage(order) {
+function processCheckout(order) {
+    // Store order in localStorage
     localStorage.setItem('checkoutOrder', JSON.stringify(order));
+    // Redirect to UPI payment page
+    window.location.href = '/upi-payment';
 }
 
-// Call this function before redirecting to UPI
-function redirectToUPI(order) {
-    storeOrderInLocalStorage(order);
-    // Redirect to UPI payment page
-    window.location.href = 'https://upi.example.com/payment';
+function completeOrderAfterUPI() {
+    // Retrieve order from localStorage
+    const order = JSON.parse(localStorage.getItem('checkoutOrder'));
+    if (!order) {
+        // Handle the case where the order is not found
+        alert('Order not found. Please try again.');
+        return;
+    }
+    // Complete the order process
+    console.log('Order completed:', order);
+    // Optionally, clear localStorage if order is completed successfully
+    localStorage.removeItem('checkoutOrder');
+}
+
+function showUPIInstructions() {
+    const order = JSON.parse(localStorage.getItem('checkoutOrder'));
+    if (!order) {
+        console.error('Order not found. Please check your order placement.');
+        return;
+    }
+    // Proceed to show UPI instructions for the retrieved order
+    console.log('Showing UPI instructions for:', order);
+    // Your logic to display UPI instructions goes here.
 }
