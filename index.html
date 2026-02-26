@@ -381,9 +381,22 @@ window.addEventListener('load', async () => {
 // ==========================================
 // LOAD DATA
 // ==========================================
+// Fetch CSV — tries direct first, then proxy fallback for mobile CORS
+async function fetchCSV(url) {
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('direct failed');
+        return await res.text();
+    } catch(e) {
+        // Fallback: allorigins.win proxy — works on all devices
+        const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+        const res = await fetch(proxy);
+        return await res.text();
+    }
+}
+
 async function loadMenu() {
-    const res = await fetch(CONFIG.MENU_URL);
-    const csv = await res.text();
+    const csv = await fetchCSV(CONFIG.MENU_URL);
     const lines = csv.split('\n').filter(l => l.trim());
     menuData = [];
     for (let i = 1; i < lines.length; i++) {
@@ -411,8 +424,7 @@ async function loadMenu() {
 
 async function loadBanners() {
     try {
-        const res = await fetch(CONFIG.BANNERS_URL);
-        const csv = await res.text();
+        const csv = await fetchCSV(CONFIG.BANNERS_URL);
         const lines = csv.split('\n').filter(l => l.trim());
         banners = [];
         for (let i = 1; i < lines.length; i++) {
@@ -851,6 +863,7 @@ window.loadAdminOrders = () => {
     // Read directly from published CSV — works on ALL devices, no CORS, no auth
     fetch(CONFIG.ORDERS_URL + '&t=' + Date.now())
         .then(r => r.text())
+        .catch(() => fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(CONFIG.ORDERS_URL)).then(r => r.text()))
         .then(csv => {
             const lines = csv.split('\n').filter(l => l.trim());
             const orders = [];
