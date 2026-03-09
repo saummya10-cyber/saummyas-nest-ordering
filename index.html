@@ -547,7 +547,7 @@ function renderCart() {
     body.innerHTML = `
         ${items.map(item=>`
         <div class="cart-item">
-            <img src="${item.image||''}" class="cart-item-img" onerror="this.style.display='none'">
+            <img src="${item.image||''}" alt="${item.name}" class="cart-item-img" loading="lazy" onerror="this.style.display='none'">
             <div class="cart-item-info">
                 <div class="cart-item-name">${item.name}</div>
                 <div class="cart-item-price">₹${item.price} each</div>
